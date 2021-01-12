@@ -6,47 +6,58 @@ import datetime
 import sys
 import getpass
 
+def make_website_list():
+    possible_website = ['monster', 'indeed', 'getting.hired', 'flex.jobs', 'snag.a.job']
+    return(possible_website)
+
+def make_yes_list():
+    possible_yes = ['Yes', 'yes', 'Y', 'y']
+    return(possible_yes)
+
+def make_no_list():
+    possible_no = ['No', 'no', 'N', 'n']
+    return(possible_no)
+
+def inappropriate_answer(answer, website):
+    if(answer == 'answer_one'):
+        print(f'Please answer with Yes or No or type \'Cancel\' to exit the program. ')
+        answer = input(f'Do you want to search all of the website?\nWebsites included are: {make_website_list()}: ')
+    elif(answer == 'answer_two'):
+        print('Please answer with a Yes or No or type \'Cancel\' to exit the program. ')
+        answer = input(f'Do you want to search {website}?: ')
+    return(answer)
+
 def get_websites():
     chosen_website = []
-    possible_website = ['monster', 'indeed', 'getting.hired', 'flex.jobs', 'snag.a.job']
-    possible_yes = ['yes', 'Yes', 'y', 'Y']
-    possible_no = ['no', 'No', 'n', 'N']
-    answer_one = input("Do you want to search all websites? (Yes/No) ")
+    possible_websites = make_website_list()
+    possible_yes = make_yes_list()
+    possible_no = make_no_list()
+    answer_one = input(f'Do you want to search all of the websites?\n Websites included are: {make_website_list()}: ')
+    while answer_one not in possible_yes and answer_one not in possible_no and answer_one != 'Cancel':
+        answer_one = inappropriate_answer("answer_one", website = None)
     if(answer_one in possible_yes):
-        chosen_website = possible_website
-        print(f'Searching websites {chosen_website}.')
-        return(chosen_website)
-    elif (answer_one not in possible_no):
-        while(answer_one not in possible_yes and answer_one not in possible_no):
-            print("Please answer Yes or No")
-            answer_one = input("Do you want to search all websites? (Yes/No) ")
-        if(answer_one in possible_yes):
-            chosen_website = possible_website
-            return(chosen_website)
-        elif(answer_one in possible_no):
-            for website in possible_website:
-                answer = input("Do you want to search " + website + "? ")
-                if (answer in possible_yes):
+        return(possible_websites)
+    elif(answer_one in possible_no):
+        for website in possible_websites:
+            answer_two = input(f'Do you want to search {website}? (Y/N) ')
+            while answer_two not in possible_yes and answer_two not in possible_no and answer_two != 'Cancel':
+                answer_two = inappropriate_answer("answer_two", website)
+            if(answer_two in possible_yes):
                     chosen_website.append(website)
-                elif (answer not in possible_no):
-                    while (answer not in possible_yes and answer not in possible_no):
-                        print("Please answer Yes or No ")
-                        answer = input("Do you want to search " + website + "? ")
-    else:
-        for website in possible_website:
-            answer = input("Do you want to search " + website + "? ")
-            if(answer in possible_yes):
-                chosen_website.append(website)
-            elif(answer not in possible_no):
-                while(answer not in possible_yes and answer not in possible_no):
-                    print("Please answer Yes or No ")
-                    answer = input("Do you want to search " + website + "? ")
-    print(f'Searching websites {chosen_website}.')
-    return(chosen_website)
+            elif(answer_two == 'Cancel'):
+                print("Exiting")
+                exit()
+        return(chosen_website)
+    elif(answer_one == 'Cancel'):
+        print("Exiting")
+        exit()
+
+def print_website_list(websites):
+    print(f'The websites chosen are: {websites}')
 
 def get_profession():
-    possible_yes = ['yes', 'Yes', 'y']
-    possible_no = ['no', 'No', 'n']
+    possible_yes = make_yes_list()
+    possible_no = make_no_list()
     answer = input("Do you want to search a specific job type? (Yes/No) ")
     while(answer not in possible_yes and answer not in possible_no):
         print("Please answer with Yes or No ")
@@ -64,20 +75,20 @@ def which_profession():
     return(answer)
 
 def multiple_professions():
+    possible_yes = make_yes_list()
     answer = input("Do you want to search multiple jobs? (Yes/No) ")
-    if(answer == "Yes" or answer == "yes"):
+    if(answer in possible_yes):
         return(True)
     else:
         return(False)
 
 def multiple_professions_additional():
-    possible_yes = ['yes', 'Yes', 'y']
-    possible_no = ['no', 'No', 'n']
-    changed_mind = [' ']
+    possible_yes = make_yes_list()
+    possible_no = make_no_list()
     answer = input("Do you want to add an additional job? (Yes/No) ")
-    while(answer not in possible_yes and answer not in possible_no and answer not in changed_mind):
-        print("Please answer with Yes or No or press 'Enter' if you wish to skip. ")
-        answer = input("Do you want to add an additional job? (Yes/No) ")
+    while(answer not in possible_yes and answer not in possible_no and answer != 'Skip'):
+        print("Please answer with Yes or No or type 'Skip' if you wish to skip. ")
+        answer = input("Do you want to add an additional job? (Yes/No/Skip) ")
     if(answer in possible_yes):
         return(True)
     else:
@@ -89,10 +100,12 @@ def multiple_professions_redun_removal(input):
 def print_job_list(jobs):
     print("The jobs being searched for are: " + str(jobs))
 
+# Need to create a more extensive get_location function
 def get_location():
     location = "Philadelphia"
     return(location)
 
+# Need to create more extensive new == FALSE functions so that it can return a user-specified amount for all create_.._url
 def create_monster(job, location, new):
     base_url = "http://www.monster.com"
     location = str(location) + "__2C-PA"
@@ -351,6 +364,7 @@ def get_os():
 def main():
     output_dataframe = pandas.DataFrame(columns = ['Job Kind','Job Title' , 'Company' , 'Link'])
     websites = get_websites()
+    print_website_list(websites)
     if(get_profession()):
         jobs = [which_profession()]
         while(multiple_professions_additional()):
@@ -428,6 +442,6 @@ def main():
         print(f'Exporting file to Desktop. ')
         print(f'File name: jobs_{datetime.date.today()}.csv')
         output_dataframe.to_csv("~/Desktop/jobs_" + str(datetime.date.today()) +'.csv', sep=",")
-
+        
 if __name__ == '__main__':
     main()
