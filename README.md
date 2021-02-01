@@ -7,3 +7,6 @@ want searched, the type of jobs, the amount of queries, and set the location for
   - Flexjobs.com, 
   - Snagajob.com, and
   - Glassdoor.com
+
+All websites except for Glassdoor are straight-forward scrapes. However, Glassdoor has safeguards that have to be overcome - thus the prolonged mechanism
+for the creation of the appropriate Glassdoor URL can be noted. 
