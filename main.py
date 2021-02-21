@@ -117,27 +117,20 @@ def get_location_city():
     amount = 0
     possible_yes = make_yes_list()
     possible_no = make_no_list()
-    answer = input(f'Do you want to search for jobs in Philadelphia? (Yes/No): ')
     verified_answer = False
-    while answer not in possible_yes and answer not in possible_no:
-        print(f'Please answer with Yes or No. ')
-        answer = input(f'Do you want to search for jobs in Philadelphia? (Yes/No): ')
-    if (answer in possible_yes):
-        return ("Philadelphia")
-    else:
-        while verified_answer == False:
-            answer = input(f'In which city do you want to search for jobs?: ')
-            verified_answer_input = input(f'Verifying, you want to search for a job in {answer}? (Yes/No) ')
-            while verified_answer_input not in possible_yes and verified_answer_input not in possible_no:
-                print(f'Please answer with either \'Yes\' or \'No\'. ')
-                verified_answer_input = input(f'Verifying, you want to search for a job in {answer}? (Yes/No) ')
-                amount += 1
-                if (amount == 3):
-                    print(f'Unable to understand. Defaulting location to Philadelphia, PA. ')
-                    return ("Philadelphia")
-            if (verified_answer_input in possible_yes):
-                verified_answer = True
-        return (answer)
+    answer = input(f'In which city do you want to search for jobs?: ')
+    while verified_answer == False:
+        verified_answer_input = input(f'Verifying that you want to serach for jobs in {answer}? (Yes/No): ')
+        while verified_answer_input not in possible_yes and verified_answer_input not in possible_no:
+            print(f'Please answer with either \'Yes\' or \'No\'. ')
+            verified_answer_input = input(f'Do you want to saerch for jobs in {answer}? (Yes/No): ')
+            amount += 1
+            if(amount == 3):
+                print(f'Unable to understand. Exiting program')
+                exit()
+        if(verified_answer_input in possible_yes):
+            verified_answer = True
+    return (answer)
 
 # Gathers via user input which state to search in
 def get_location_state(answer):
@@ -189,13 +182,10 @@ def get_search_amount():
 
 def create_monster(job, location, new, amount):
     base_url = "http://www.monster.com"
-    if (location[0] == "Philadelphia"):
-        location = f'{location[0]}__2C-PA'
-    else:
-        city = location[0]
-        city = re.sub(r'\s', '-', city)
-        state = location[1]
-        location = f'{city}__2C-{state}'
+    city = location[0]
+    city = re.sub(r'\s', '-', city)
+    state = location[1]
+    location = f'{city}__2C-{state}'
     if (job == "None"):
         full_url = f'{base_url}/jobs/search/?where={location}'
     else:
@@ -457,6 +447,8 @@ def create_url(website, job, location, new, amount):
         url = create_snagajob_url(job, location)
     elif (website == 'glass.door'):
         url = create_glassdoor_url(job, location, new, amount)
+        ##
+        print(url)
     return (url)
 
 # Glassdoor is a long process; this warns user.
@@ -469,7 +461,6 @@ def call_url(website, full_url, job):
         headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36',
             'sec-ch-ua': 'Google Chrome";v="87", " Not;A Brand";v="99", "Chromium";v="87',
-            # 'Referer': 'https://www.ziprecruiter.com/candidate/search?search=&location=Philadelphia%2C+PA',
             'sec-ch-ua-mobile': '?0'}
         page = requests.get(full_url, headers=headers)
     elif (website == 'indeed'):
@@ -558,8 +549,10 @@ def get_job_title(website, element):
     if (website == 'snag.a.job'):
         title_element = element.find('h3', class_="job__position")
     if (website == 'glass.door'):
-        title_element_ = element.find('a', class_='jobInfoItem') #this needs fixin
+        title_element_ = element.find('a', class_='jobLink') #this needs fixin
+        print(f'this is title_element_ : {title_element_}')
         title_element = title_element_.find('span')
+        print(f'this is title_element (span): {title_element}')
     if title_element != None:
         return (title_element.text.strip())
 
